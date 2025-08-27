@@ -20,6 +20,8 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation("io.ktor:ktor-server-netty:3.2.3")
+            implementation("com.juul.kable:kable-core:0.39.2")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -27,15 +29,19 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.androidx.lifecycle.livedata.core.ktx)
         }
         val commonMain by getting {
             dependencies {
                 implementation(libs.usb.library.core)
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
             }
         }
         val jvmMain by getting {
             dependencies {
                 implementation(libs.usb.library.jvm)
+
             }
         }
     }
@@ -48,7 +54,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "de.turksat46.opendashboard"
+            packageName = "openDashboard"
             packageVersion = "1.0.0"
         }
     }

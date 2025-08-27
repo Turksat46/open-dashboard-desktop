@@ -7,15 +7,19 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -34,19 +38,29 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import opendashboard.composeapp.generated.resources.Res
+import opendashboard.composeapp.generated.resources.baseline_pause_24
+import opendashboard.composeapp.generated.resources.baseline_skip_next_24
+import opendashboard.composeapp.generated.resources.baseline_skip_previous_24
 import opendashboard.composeapp.generated.resources.compose_multiplatform
+import org.jetbrains.skia.Bitmap
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,11 +87,17 @@ fun App() {
                 }
             }else{
                 Surface(color = Color.Transparent,modifier = Modifier.fillMaxSize()) {
-                    InfoAndControlsOverlay(
-                        0.0f,
-                        onSettingsToggle = {},
-                        showSettingsButton = true,
-                    )
+                    Row(modifier = Modifier.fillMaxHeight(), horizontalArrangement = Arrangement.Start){
+
+                        InfoAndControlsOverlay(
+                            20.0f,
+                            onSettingsToggle = {},
+                            showSettingsButton = true,
+                        )
+
+                        InfoPanelMedia(modifier = Modifier.padding(16.dp).weight(0.8f))
+
+                    }
                 }
             }
         }
@@ -90,7 +110,7 @@ fun InfoAndControlsOverlay(
     onSettingsToggle: () -> Unit,
     showSettingsButton: Boolean,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.wrapContentSize()) {
         
         val speedSignsPadding = Modifier.padding(start = 20.dp, top = 20.dp, end = 20.dp) // Added end padding for TopCenter
 
@@ -151,5 +171,162 @@ fun InfoAndControlsOverlay(
         ) {}
 
 
+    }
+}
+
+// InfoPanelMedia Composable
+@Composable
+fun InfoPanelMedia(modifier: Modifier = Modifier) {
+
+        Card(
+            modifier = modifier.fillMaxHeight(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF121212),
+            ),
+            elevation = CardDefaults.cardElevation(4.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) { // Changed from fillMaxWidth(0.5f)
+                Image(
+                    painterResource(Res.drawable.compose_multiplatform),
+                    contentDescription = "Album Art Background",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .blur(radius = 3.dp) // Slight blur for background
+                        .animateContentSize(),
+                    alpha = 0.9f // Slightly transparent
+                )
+                Box( // Darkening overlay for better text contrast
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f))
+                )
+            }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    val titleTextColor = Color.White
+                    val bodyTextColor =  Color.LightGray.copy(alpha = 0.9f)
+                    val labelTextColor = titleTextColor.copy(alpha = 0.7f)
+
+                    val textInfoBackgroundColor = Color.Black.copy(alpha = 0.4f)
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .background(
+                                textInfoBackgroundColor.copy(alpha = 0.8f),
+                                RoundedCornerShape(12.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Spacer(Modifier.height(4.dp))
+
+                        Text(
+                            text =  "Keine Wiedergabe",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = titleTextColor,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
+                        )
+
+                            Text(
+                                text = "Test",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = bodyTextColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+
+                            Text(
+                                text = "via Spotify", // You might want to map package name to app name
+                                style = MaterialTheme.typography.labelMedium,
+                                color = labelTextColor,
+                                textAlign = TextAlign.Center,
+                            )
+
+                    }
+
+                        val controlBgColor = Color.Black.copy(alpha = 0.55f)
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 0.dp)){
+                            MediaControls(
+                                isPlaying = true,
+                                backgroundColor = controlBgColor,
+                                onPlay = {  },
+                                onPause = {  },
+                                onSkipNext = {  },
+                                onSkipPrevious = {  },
+                                canControl = true
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
+        }
+    }
+
+// MediaControls Composable - Modified to accept lambdas and control flag
+@Composable
+fun MediaControls(
+    isPlaying: Boolean,
+    backgroundColor: Color,
+    onPlay: () -> Unit,
+    onPause: () -> Unit,
+    onSkipNext: () -> Unit,
+    onSkipPrevious: () -> Unit,
+    canControl: Boolean,
+
+    ) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(backgroundColor, RoundedCornerShape(28.dp)), // More rounded
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onSkipPrevious, enabled = canControl) {
+            Icon(
+                painterResource(Res.drawable.baseline_skip_previous_24),
+                "Vorheriger",
+                //tint = iconTintColor,
+                modifier = Modifier.size(30.dp) // Slightly smaller
+            )
+        }
+        IconButton(
+            onClick = if (isPlaying) onPause else onPlay,
+            enabled = canControl,
+            modifier = Modifier
+                .size(60.dp) // Larger central button
+                .background(
+                     Color.White.copy(alpha = 0.1f),
+                    CircleShape
+                )
+        ) {
+            //imageVector = if (isPlaying) ImageVector.vectorResource(R.drawable.baseline_pause_24) else Icons.Default.PlayArrow,
+
+            Icon(
+                painterResource(Res.drawable.baseline_pause_24),
+                contentDescription = if (isPlaying) "Pause" else "Play",
+                //tint = iconTintColor,
+                modifier = Modifier.size(if (isPlaying) 30.dp else 36.dp) // Pause icon can be smaller
+            )
+        }
+        IconButton(onClick = onSkipNext, enabled = canControl) {
+            Icon(
+                painterResource(Res.drawable.baseline_skip_next_24),
+                "Nächster",
+                //tint = iconTintColor,
+                modifier = Modifier.size(30.dp) // Slightly smaller
+            )
+        }
     }
 }
