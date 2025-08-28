@@ -1,6 +1,7 @@
 package de.turksat46.opendashboard
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,12 +21,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -66,33 +71,106 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun App() {
+fun App(state: DashboardState) {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(true) }
+        var showConnectionStatusCard by remember { mutableStateOf(true) }
+
+        LaunchedEffect(state.status) {
+            if (state.status == ConnectionStatus.CONNECTED) {
+                delay(3000L)
+                showConnectionStatusCard = false
+            } else {
+                showConnectionStatusCard = true
+            }
+        }
         Column(
             modifier = Modifier
                 .background(color = Color(0xFF121212))
                 .safeContentPadding()
                 .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-           Card(modifier = Modifier.padding(16.dp).fillMaxWidth(0.9f).height(40.dp).safeContentPadding(), colors = CardDefaults.cardColors(containerColor = Color(0xFF2E2E2E))) {
-               Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                   Text("open::Dashboard", textAlign = TextAlign.Center, fontSize = 30.sp, color = Color.White)
-               }
-           }
-            if(!showContent) {
+
+            ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+                Card(modifier = Modifier.padding(16.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFF2E2E2E))) {
+                    Text(
+                        "open::Dashboard",
+                        textAlign = TextAlign.Center,
+                        fontSize = 30.sp,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showConnectionStatusCard,
+                    enter = fadeIn(animationSpec = tween(300)),
+                    exit = fadeOut(animationSpec = tween(500))
+                ) {
+                    val statusText = when (state.status) {
+                        ConnectionStatus.DISCONNECTED -> "Getrennt. Suche in Kürze..."
+                        ConnectionStatus.SCANNING -> "Suche nach Gerät..."
+                        ConnectionStatus.CONNECTING -> "Verbinde..."
+                        ConnectionStatus.CONNECTED -> "Verbunden"
+                    }
+                    Card(
+                        modifier = Modifier.padding(16.dp).animateContentSize(),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF2E2E2E))
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+                            Text(
+                                statusText,
+                                textAlign = TextAlign.Center,
+                                fontSize = 30.sp,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                            if (state.status == ConnectionStatus.SCANNING || state.status == ConnectionStatus.CONNECTING) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 8.dp
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            if(state.status == ConnectionStatus.SCANNING) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Text("Bitte verbinden Sie Ihr Smartphone mit der open::Dashboard-App", textAlign = TextAlign.Center, fontSize = 30.sp, color = Color.White)
+                    Text(
+                        "Bitte öffnen Sie die open::Dashboard-App",
+                        textAlign = TextAlign.Center,
+                        fontSize = 30.sp,
+                        color = Color.White
+                    )
+                }
+            }else if(state.status == ConnectionStatus.CONNECTING) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        "Danke :D Die Verbindung wird hergestellt...",
+                        textAlign = TextAlign.Center,
+                        fontSize = 30.sp,
+                        color = Color.White
+                    )
+                }
+            }else if(state.status == ConnectionStatus.DISCONNECTED) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        "Verbindung verloren :( Es wird gleich wieder gesucht!",
+                        textAlign = TextAlign.Center,
+                        fontSize = 30.sp,
+                        color = Color.White
+                    )
                 }
             }else{
                 Surface(color = Color.Transparent,modifier = Modifier.fillMaxSize()) {
                     Row(modifier = Modifier.fillMaxHeight(), horizontalArrangement = Arrangement.Start){
 
                         InfoAndControlsOverlay(
-                            20.0f,
                             onSettingsToggle = {},
                             showSettingsButton = true,
+                            dashboardState = state,
                         )
 
                         InfoPanelMedia(modifier = Modifier.padding(16.dp).weight(0.8f))
@@ -106,9 +184,9 @@ fun App() {
 
 @Composable
 fun InfoAndControlsOverlay(
-    speed: Float,
     onSettingsToggle: () -> Unit,
     showSettingsButton: Boolean,
+    dashboardState: DashboardState,
 ) {
     Box(modifier = Modifier.wrapContentSize()) {
         
@@ -124,15 +202,22 @@ fun InfoAndControlsOverlay(
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.75f)),
-                modifier = Modifier.animateContentSize()
+                modifier = Modifier.animateContentSize().defaultMinSize(minWidth = 120.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val speedKmh = (speed * 3.6f).roundToInt()
+                    var speedKmh: String
+                    try {
+
+                         speedKmh = (dashboardState.locationData?.speed?.times(3.6f))?.roundToInt().toString()
+                    }catch (e:Exception){
+                        println("Speed KMH Error: $e")
+                        speedKmh = ":("
+                    }
                     Text(
-                        text = "$speedKmh",
+                        text = speedKmh,
                         color = Color.White,
                         fontSize = 70.sp,
                         fontWeight = FontWeight.Bold
@@ -179,7 +264,7 @@ fun InfoAndControlsOverlay(
 fun InfoPanelMedia(modifier: Modifier = Modifier) {
 
         Card(
-            modifier = modifier.fillMaxHeight(),
+            modifier = modifier.animateContentSize(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF121212),

@@ -22,6 +22,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation("io.ktor:ktor-server-netty:3.2.3")
             implementation("com.juul.kable:kable-core:0.39.2")
+            implementation("com.benasher44:uuid:0.8.4")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
