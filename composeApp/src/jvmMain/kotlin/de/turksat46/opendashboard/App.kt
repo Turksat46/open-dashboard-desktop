@@ -173,7 +173,7 @@ fun App(state: DashboardState) {
                             dashboardState = state,
                         )
 
-                        InfoPanelMedia(modifier = Modifier.padding(16.dp).weight(0.8f))
+                        //InfoPanelMedia(modifier = Modifier.padding(16.dp).weight(0.8f))
 
                     }
                 }
@@ -202,7 +202,7 @@ fun InfoAndControlsOverlay(
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.75f)),
-                modifier = Modifier.animateContentSize().defaultMinSize(minWidth = 120.dp)
+                modifier = Modifier.animateContentSize()
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),

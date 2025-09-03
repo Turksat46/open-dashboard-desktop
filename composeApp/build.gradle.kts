@@ -7,6 +7,9 @@ plugins {
     alias(libs.plugins.composeHotReload)
 }
 
+
+
+
 kotlin {
     jvm()
     
@@ -30,13 +33,11 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation(libs.androidx.lifecycle.livedata.core.ktx)
         }
         val commonMain by getting {
             dependencies {
                 implementation(libs.usb.library.core)
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-
             }
         }
         val jvmMain by getting {

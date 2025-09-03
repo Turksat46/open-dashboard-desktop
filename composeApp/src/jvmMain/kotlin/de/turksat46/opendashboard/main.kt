@@ -25,6 +25,7 @@ import com.juul.kable.logs.SystemLogEngine
 import dev.mcarr.usb.impl.SerialPortList
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -74,7 +75,6 @@ fun main() = application {
         //state = WindowState(placement = WindowPlacement.Fullscreen),
     ) {
         App(dashboardState)
-        println("open::Dashboard::Desktop: Looking for device")
         LaunchedEffect(Unit) {
             println("Starting BLE background task...")
 
@@ -151,6 +151,7 @@ fun main() = application {
                                     println("Data: $data")
                                 }
                             }
+
                     }
 
 

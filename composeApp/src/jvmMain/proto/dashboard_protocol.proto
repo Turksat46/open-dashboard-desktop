@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+// Wichtig: Definiert das Kotlin-Package für die generierten Klassen
+option java_package = "de.turksat46.opendashboard.proto";
+// Sorgt dafür, dass für jede "message" eine eigene Datei generiert wird
+option java_multiple_files = true;
+
+// Eine "Hülle" für alle unsere Nachrichten.
+// So können wir später leicht neue Nachrichtentypen hinzufügen.
+message DashboardPacket {
+  oneof payload {
+    LocationData location_data = 1;
+    // MediaData media_data = 2; // Beispiel für spätere Erweiterung
+  }
+}
+
+// Deine Standortdaten-Struktur
+message LocationData {
+  double latitude = 1;
+  double longitude = 2;
+  float speed = 3; // in m/s
+}
