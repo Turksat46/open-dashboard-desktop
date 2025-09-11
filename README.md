@@ -6,12 +6,12 @@ It can be on a raspberry pi or any system, which can run and handle JVM.
 
 ## THIS IS A WORK-IN-PROGRESS
 
-It currently doesn't show any information, just that it wants to be connected with a device
+It currently shows data in a broken matter
 
 
 BIG TO-DO'S:
-- Communicate with mobile device via USB
-- Communication with Wi-Fi or Bluetooth with own protocol for fast data delivery
+- Implementation of open::API
+- Serialization of data delivery
 - 
 
 This is a Kotlin Multiplatform project targeting Desktop (JVM).
