@@ -35,3 +35,5 @@ plugins {
 }
 
 include(":composeApp")
+include(":api")
+include(":core")

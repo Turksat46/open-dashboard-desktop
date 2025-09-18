@@ -78,8 +78,9 @@ import com.kashif.cameraK.enums.FlashMode
 import com.kashif.cameraK.enums.ImageFormat
 import com.kashif.cameraK.enums.QualityPrioritization
 import com.kashif.cameraK.ui.CameraPreview
-import de.turksat46.opendashboard.commonComponents.InfoPanelMedia
-import de.turksat46.opendashboard.commonComponents.MediaData
+
+import de.turksat46.opendashboard.core.ConnectionStatus
+import de.turksat46.opendashboard.core.DashboardState
 
 import opendashboard.composeapp.generated.resources.Res
 import opendashboard.composeapp.generated.resources.baseline_pause_24
@@ -194,6 +195,9 @@ fun App(state: DashboardState) {
                         var isCameraMaximized by remember { mutableStateOf(false) }
                         val cameraController = remember { mutableStateOf<CameraController?>(null) }
 
+                        val isCameraReady by remember { derivedStateOf { cameraController.value != null } }
+
+
                         // Animationen für die Zustandsänderungen
                         val blurRadius by animateDpAsState(if (isCameraMaximized) 16.dp else 0.dp, label = "BlurAnimation")
                         val alignment by animateAlignmentAsState(if (isCameraMaximized) Alignment.Center else Alignment.TopEnd)
@@ -261,19 +265,38 @@ fun App(state: DashboardState) {
                             }
 
 
-                            // Die EINE CameraCard, die ihre Größe und Position animiert
-                            CameraCard(
-                                modifier = Modifier
-                                    .align(alignment)
-                                    .padding(cardPadding)
-                                    .size(width = animatedWidth, height = animatedHeight)
-                                    .zIndex(1f) // Stellt sicher, dass die Karte über dem Blur-Hintergrund ist
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) { isCameraMaximized = !isCameraMaximized },
-                                cameraController = cameraController
-                            )
+                            // Bedingte Anzeige: Zeige Lade-Platzhalter oder die Kamera-Vorschau
+                            if (isCameraReady) {
+                                // Wenn die Kamera bereit ist, zeige die CameraCard
+                                CameraCard(
+                                    modifier = Modifier
+                                        .align(alignment)
+                                        .padding(cardPadding)
+                                        .size(width = animatedWidth, height = animatedHeight)
+                                        .zIndex(1f) // Stellt sicher, dass die Karte über dem Blur-Hintergrund ist
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) { isCameraMaximized = !isCameraMaximized },
+                                    cameraController = cameraController
+                                )
+                            } else {
+                                // Solange die Kamera nicht bereit ist, zeige einen Platzhalter
+                                Card(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd) // Startposition
+                                        .padding(20.dp)          // Start-Padding
+                                        .size(width = 240.dp, height = 180.dp), // Startgröße
+                                    shape = RoundedCornerShape(16.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                            }
                         }
                     }
                 }
