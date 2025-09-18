@@ -3,49 +3,10 @@ package de.turksat46.opendashboard
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
-import com.benasher44.uuid.uuidFrom
-import com.juul.kable.Descriptor
-import com.juul.kable.ExperimentalApi
-import com.juul.kable.Filter
-import com.juul.kable.Peripheral
-import com.juul.kable.Scanner
-import com.juul.kable.State
-import com.juul.kable.characteristicOf
-import com.juul.kable.logs.Logging
-import com.juul.kable.logs.SystemLogEngine
 import de.turksat46.opendashboard.core.BleModule
-import dev.mcarr.usb.impl.SerialPortList
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
-
-
-@OptIn(ExperimentalUuidApi::class)
-private val SERVICE_UUID = Uuid.parse("00001819-0000-1000-8000-00805f9b34fb")
-@OptIn(ExperimentalUuidApi::class)
-private val CHARACTERISTIC_UUID = Uuid.parse("00002a67-0000-1000-8000-00805f9b34fb")
-private const val DEVICE_NAME = "open::Device"
 
 fun main() = application {
     // Erstelle und merke dir eine Instanz des BleManagers.
